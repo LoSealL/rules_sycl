@@ -1,13 +1,13 @@
 {
-  "homepage": "https://github.com/bazel-contrib/rules_cuda",
+  "homepage": "https://github.com/loseall/rules_sycl",
   "maintainers": [
     {
-      "email": "james.sharpe@zenotech.com",
-      "github": "jsharpe",
-      "name": "James Sharpe"
+      "email": "wenyitang@outlook.com",
+      "github": "loseall",
+      "name": "Wenyi Tang"
     }
   ],
-  "repository": ["github:bazel-contrib/rules_cuda"],
+  "repository": ["github:loseall/rules_sycl"],
   "versions": [],
   "yanked_versions": {}
 }

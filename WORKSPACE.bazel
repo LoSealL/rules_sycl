@@ -1,15 +1,15 @@
-workspace(name = "rules_cuda")
+workspace(name = "rules_sycl")
 
 local_repository(
-    name = "rules_cuda_examples",
+    name = "rules_sycl_examples",
     path = "examples",
 )
 
-load("@rules_cuda//cuda:repositories.bzl", "rules_cuda_dependencies", "rules_cuda_toolchains")
+load("@rules_sycl//sycl:repositories.bzl", "rules_sycl_dependencies", "rules_sycl_toolchains")
 
-rules_cuda_dependencies()
+rules_sycl_dependencies()
 
-rules_cuda_toolchains(register_toolchains = True)
+rules_sycl_toolchains(register_toolchains = True)
 
 load("@bazel_skylib//:workspace.bzl", "bazel_skylib_workspace")
 
