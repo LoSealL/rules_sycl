@@ -1,0 +1,22 @@
+load("@rules_sycl//sycl:defs.bzl", "sycl_test")
+
+package(default_visibility = ["//visibility:public"])
+
+sycl_test(
+    name = "main",
+    srcs = [
+        "main.cpp",
+        "mandel.hpp",
+    ],
+    deps = ["//tests/sycl:common"],
+)
+
+sycl_test(
+    name = "main_usm",
+    srcs = [
+        "main.cpp",
+        "mandel.hpp",
+    ],
+    local_defines = ["MANDELBROT_USM"],
+    deps = ["//tests/sycl:common"],
+)

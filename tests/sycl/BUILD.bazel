@@ -1,0 +1,11 @@
+load("@rules_sycl//sycl:defs.bzl", "sycl_library")
+
+sycl_library(
+    name = "common",
+    hdrs = glob([
+        "common/**/*.hpp",
+        "common/**/*.h",
+    ]),
+    includes = ["common"],
+    visibility = ["//tests/sycl:__subpackages__"],
+)

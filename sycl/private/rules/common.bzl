@@ -1,4 +1,4 @@
-ALLOW_CUDA_HDRS = [
+ALLOW_SYCL_HDRS = [
     ".cuh",
     ".h",
     ".hpp",
@@ -6,7 +6,7 @@ ALLOW_CUDA_HDRS = [
     ".inl",
 ]
 
-ALLOW_CUDA_SRCS = [
+ALLOW_SYCL_SRCS = [
     ".cc",
     ".cpp",
     ".cu",

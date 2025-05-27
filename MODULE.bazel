@@ -4,8 +4,8 @@ module(
     compatibility_level = 1,
 )
 
-bazel_dep(name = "bazel_skylib", version = "1.4.2")
-bazel_dep(name = "platforms", version = "0.0.6")
+bazel_dep(name = "bazel_skylib", version = "1.7.1")
+bazel_dep(name = "platforms", version = "0.0.10")
 
 sycl = use_extension("@rules_sycl//sycl:extensions.bzl", "toolchain")
 sycl.toolkit(
@@ -16,11 +16,4 @@ use_repo(sycl, "sycl")
 
 register_toolchains(
     "@sycl//toolchain:icx-local-toolchain",
-    "@sycl//toolchain/disabled:disabled-local-toolchain",
-)
-
-bazel_dep(name = "rules_sycl_examples", dev_dependency = True)
-local_path_override(
-    module_name = "rules_sycl_examples",
-    path = "./examples",
 )

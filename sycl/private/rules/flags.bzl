@@ -1,17 +1,16 @@
 load("@bazel_skylib//rules:common_settings.bzl", "BuildSettingInfo")
-load("//cuda/private:cuda_helper.bzl", "cuda_helper")
-load("//cuda/private:providers.bzl", "CudaArchsInfo")
+load("//sycl/private:providers.bzl", "SyclArchsInfo")
 
-def _cuda_archs_flag_impl(ctx):
+def _sycl_archs_flag_impl(ctx):
     specs_str = ctx.build_setting_value
-    return CudaArchsInfo(arch_specs = cuda_helper.get_arch_specs(specs_str))
+    return SyclArchsInfo(arch_specs = specs_str)
 
-cuda_archs_flag = rule(
-    doc = """A build setting for specifying cuda archs to compile for.
+sycl_archs_flag = rule(
+    doc = """A build setting for specifying sycl archs to compile for.
 
-To retain the flexibility of NVCC, the [extended notation](https://docs.nvidia.com/cuda/cuda-compiler-driver-nvcc/index.html#extended-notation) is adopted.
+To retain the flexibility of ICX, the [extended notation](https://docs.nvidia.com/sycl/sycl-compiler-driver-nvcc/index.html#extended-notation) is adopted.
 
-When passing cuda_archs from commandline, its spec grammar is as follows:
+When passing sycl_archs from commandline, its spec grammar is as follows:
 
     ARCH_SPECS   ::= ARCH_SPEC [ ';' ARCH_SPECS ]
     ARCH_SPEC    ::= [ VIRTUAL_ARCH ':' ] GPU_ARCHS
@@ -21,7 +20,7 @@ When passing cuda_archs from commandline, its spec grammar is as follows:
                    | VIRTUAL_ARCH
     VIRTUAL_ARCH ::= 'compute_' ARCH_NUMBER
                    | 'lto_' ARCH_NUMBER
-    ARCH_NUMBER  ::= (a string in predefined cuda_archs list)
+    ARCH_NUMBER  ::= (a string in predefined sycl_archs list)
 
 E.g.:
 
@@ -42,9 +41,9 @@ Best Practices:
 
 - Library supports a full range of archs from xx to yy, you should embed the yy PTX
 - Library supports a sparse range of archs from xx to yy, you should embed the xx PTX""",
-    implementation = _cuda_archs_flag_impl,
+    implementation = _sycl_archs_flag_impl,
     build_setting = config.string(flag = True),
-    provides = [CudaArchsInfo],
+    provides = [SyclArchsInfo],
 )
 
 def _repeatable_string_flag_impl(ctx):

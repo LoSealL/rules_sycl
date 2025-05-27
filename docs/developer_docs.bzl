@@ -1,5 +1,5 @@
 load("@rules_cuda//cuda/private:actions/compile.bzl", _compile = "compile")
-load("@rules_cuda//cuda/private:actions/dlink.bzl", _device_link = "device_link")
+load("@rules_cuda//cuda/private:actions/codegen.bzl", _device_codegen = "device_codegen")
 load("@rules_cuda//cuda/private:cuda_helper.bzl", _cuda_helper = "cuda_helper")
 load(
     "@rules_cuda//cuda/private:repositories.bzl",
@@ -29,7 +29,7 @@ config_helper = _config_helper
 # create a struct to group action symbols semantically
 actions = struct(
     compile = _compile,
-    device_link = _device_link,
+    device_codegen = _device_codegen,
 )
 
 # create a struct to group repositories symbols semantically

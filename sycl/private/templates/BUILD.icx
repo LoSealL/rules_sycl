@@ -1,0 +1,135 @@
+filegroup(
+    name = "compiler_deps",
+    srcs = [
+        ":%{component_name}_header_files",
+    ] + glob(
+        [
+            "%{component_name}/compiler/%{version}/bin/**",
+            "%{component_name}/ocloc/%{version}/bin/**",
+        ],
+        allow_empty = False,
+    ),
+)
+
+win32_shared_libraries = [
+    "sycl8",
+    "ur_loader",
+    "libmmd",
+    "svml_dispmd",
+]
+
+win32_dynamic_shared_libraries = [
+    "ur_win_proxy_loader",
+    "ur_adapter_opencl",
+    "ur_adapter_level_zero",
+]
+
+win32_shared_libraries_debug = [
+    "sycl8",
+    "libmmd",
+]
+
+win32_dynamic_shared_libraries_debug = [
+    "ur_win_proxy_loaderd",
+]
+
+[cc_import(
+    name = "{}_dll".format(i),
+    interface_library = "%{component_name}/%{version}/lib/{}.lib".format(i),
+    shared_library = "%{component_name}/%{version}/bin/{}.dll".format(i),
+    target_compatible_with = ["@platforms//os:windows"],
+) for i in win32_shared_libraries]
+
+[cc_import(
+    name = "{}_dll".format(i),
+    shared_library = "%{component_name}/%{version}/bin/{}.dll".format(i),
+    target_compatible_with = ["@platforms//os:windows"],
+) for i in win32_dynamic_shared_libraries]
+
+[cc_import(
+    name = "{}_dll_debug".format(i),
+    interface_library = "%{component_name}/%{version}/lib/{}d.lib".format(i),
+    shared_library = "%{component_name}/%{version}/bin/{}d.dll".format(i),
+    target_compatible_with = ["@platforms//os:windows"],
+) for i in win32_shared_libraries_debug]
+
+[cc_import(
+    name = "{}_dll_debug".format(i),
+    shared_library = "%{component_name}/%{version}/bin/{}.dll".format(i),
+    target_compatible_with = ["@platforms//os:windows"],
+) for i in win32_dynamic_shared_libraries_debug]
+
+cc_import(
+    name = "clang_rt.asan_dynamic-x86_64",
+    shared_library = "%{component_name}/%{version}/lib/clang/%{llvm_version}/lib/windows/clang_rt.asan_dynamic-x86_64.dll",
+    target_compatible_with = ["@platforms//os:windows"],
+)
+
+linux_shared_libraries = [
+    "sycl",
+    "ur_loader",
+    "svml",
+]
+
+[cc_import(
+    name = "{}_so".format(i),
+    shared_library = "%{component_name}/%{version}/lib/lib{}.so".format(i),
+    target_compatible_with = ["@platforms//os:linux"],
+) for i in linux_shared_libraries]
+
+cc_import(
+    name = "libircmt",
+    static_library = "%{component_name}/%{version}/lib/libircmt.lib",
+    target_compatible_with = ["@platforms//os:windows"],
+)
+
+cc_import(
+    name = "libdecimal",
+    static_library = "%{component_name}/%{version}/lib/libdecimal.lib",
+    target_compatible_with = ["@platforms//os:windows"],
+)
+
+cc_import(
+    name = "sycl-devicelib-host",
+    static_library = "%{component_name}/%{version}/lib/sycl-devicelib-host.lib",
+    target_compatible_with = ["@platforms//os:windows"],
+)
+
+cc_import(
+    name = "libirc",
+    static_library = "%{component_name}/%{version}/lib/libirc.a",
+    target_compatible_with = ["@platforms//os:linux"],
+)
+
+cc_import(
+    name = "liblibdecimal",
+    static_library = "%{component_name}/%{version}/lib/libdecimal.a",
+    target_compatible_with = ["@platforms//os:linux"],
+)
+
+cc_import(
+    name = "libsycl-devicelib-host",
+    static_library = "%{component_name}/%{version}/lib/libsycl-devicelib-host.a",
+    target_compatible_with = ["@platforms//os:linux"],
+)
+
+cc_library(
+    name = "sycl_runtime",
+    visibility = ["//visibility:public"],
+    deps = if_linux([
+        "libirc",
+        "liblibdecimal",
+        "libsycl-devicelib-host",
+    ] + [
+        ":{}_so".format(i)
+        for i in linux_shared_libraries
+    ]) + if_windows([
+        "libircmt",
+        "libdecimal",
+        "sycl-devicelib-host",
+        "clang_rt.asan_dynamic-x86_64",
+    ] + [
+        ":{}_dll".format(i)
+        for i in win32_shared_libraries + win32_dynamic_shared_libraries
+    ]),
+)

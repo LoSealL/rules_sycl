@@ -1,10 +1,5 @@
 workspace(name = "rules_sycl")
 
-local_repository(
-    name = "rules_sycl_examples",
-    path = "examples",
-)
-
 load("@rules_sycl//sycl:repositories.bzl", "rules_sycl_dependencies", "rules_sycl_toolchains")
 
 rules_sycl_dependencies()

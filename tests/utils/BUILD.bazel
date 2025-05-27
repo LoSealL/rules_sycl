@@ -1,3 +1,0 @@
-load(":utils_test.bzl", "get_arch_specs_test")
-
-get_arch_specs_test(name = "get_arch_specs_test")

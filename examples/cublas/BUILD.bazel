@@ -1,6 +1,0 @@
-# Run with 'bazel run //examples/cublas:main'
-cc_binary(
-    name = "main",
-    srcs = ["cublas.cpp"],
-    deps = ["@cuda//:cublas"],
-)

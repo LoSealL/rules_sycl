@@ -1,0 +1,7 @@
+load("@bazel_skylib//rules:common_settings.bzl", "bool_setting")  # @unused
+load("@sycl//:defs.bzl", "if_local_sycl_toolkit")  # @unused
+load("@rules_sycl//sycl:defs.bzl", "if_linux", "if_windows")  # @unused
+
+package(
+    default_visibility = ["//visibility:public"],
+)

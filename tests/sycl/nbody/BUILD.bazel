@@ -1,0 +1,12 @@
+load("@rules_sycl//sycl:defs.bzl", "sycl_test")
+
+package(default_visibility = ["//visibility:public"])
+
+sycl_test(
+    name = "main",
+    srcs = glob([
+        "*.cpp",
+        "*.hpp",
+    ]),
+    deps = ["//tests/sycl:common"],
+)

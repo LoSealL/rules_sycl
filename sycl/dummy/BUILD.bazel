@@ -1,27 +1,13 @@
 package(default_visibility = ["//visibility:public"])
 
 cc_binary(
-    name = "nvcc",
+    name = "icx",
     srcs = ["dummy.cpp"],
-    defines = ["TOOLNAME=nvcc"],
+    defines = ["TOOLNAME=icx"],
 )
 
 cc_binary(
-    name = "nvlink",
+    name = "ocloc",
     srcs = ["dummy.cpp"],
-    defines = ["TOOLNAME=nvlink"],
-)
-
-exports_files(["link.stub"])
-
-cc_binary(
-    name = "bin2c",
-    srcs = ["dummy.cpp"],
-    defines = ["TOOLNAME=bin2c"],
-)
-
-cc_binary(
-    name = "fatbinary",
-    srcs = ["dummy.cpp"],
-    defines = ["TOOLNAME=fatbinary"],
+    defines = ["TOOLNAME=ocloc"],
 )
