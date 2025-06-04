@@ -1,0 +1,8 @@
+load("@rules_sycl//sycl:defs.bzl", "sycl_test", "spv_library")
+
+package(default_visibility = ["//visibility:public"])
+
+spv_library(
+    name = "main",
+    srcs = ["main.cc"],
+)

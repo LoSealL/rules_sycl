@@ -124,6 +124,11 @@ def _impl(ctx):
             ),
         ]
 
+    spirv_codegen_action = action_config(
+        action_name = "sycl-spv-codegen",
+        tools = [tool(path = ctx.attr.tool_paths["spirv"])],
+    )
+
     if _use_msvc_toolchain(ctx):
         cpp_link_nodeps_dynamic_library_action = action_config(
             action_name = ACTION_NAMES.cpp_link_nodeps_dynamic_library,
@@ -263,9 +268,10 @@ def _impl(ctx):
             cpp_link_dynamic_library_action,
             cpp_link_nodeps_dynamic_library_action,
             cpp_link_static_library_action,
+            spirv_codegen_action,
         ]
     else:
-        action_configs = []
+        action_configs = [spirv_codegen_action]
 
     if _use_msvc_toolchain(ctx):
         sycl_compile_flag_feature = feature(

@@ -73,6 +73,7 @@ def _generate_toolchain_build(repository_ctx, sycl):
         msvc_vars_x64 = msvc_helper.get_msvc_vars(repository_ctx, paths, "x64")
         msvc_vars_x64["%{msvc_cl_path_x64}"] = sycl.icx
         msvc_vars_x64["%{msvc_link_path_x64}"] = sycl.icx
+        msvc_vars_x64["%{llvm_spirv_path_x64}"] = sycl.llvm_spirv
         msvc_vars_x64["%{msvc_env_lib_x64}"] += ";".join([""] + sycl.lib_paths)
         msvc_vars_x64["%{msvc_env_include_x64}"] += ";".join([""] + sycl.include_paths)
         msvc_vars_x64["%{msvc_cxx_builtin_include_directories_x64}"] += ",\n        " + ",\n        ".join([
@@ -97,6 +98,7 @@ def _generate_toolchain_build(repository_ctx, sycl):
         template_vars["gcc"] = sycl.icx
         template_vars["llvm-cov"] = "{}/compiler/{}/bin/compiler/llvm-cov".format(sycl.path, sycl.version)
         template_vars["llvm-profdata"] = "{}/compiler/{}/bin/compiler/llvm-profdata".format(sycl.path, sycl.version)
+        template_vars["llvm-spirv"] = sycl.llvm_spirv
         template_vars["ar"] = "{}/compiler/{}/bin/compiler/llvm-ar".format(sycl.path, sycl.version)
         template_vars["builtin_include_directories"] = sycl.include_paths
         gcc_helper.configure_unix_toolchain(repository_ctx, paths, "x86_64", template_vars)

@@ -10,6 +10,10 @@ load("//sycl/private:macros/sycl_binary.bzl", _sycl_binary = "sycl_binary")
 load("//sycl/private:macros/sycl_library.bzl", _sycl_library = "sycl_library")
 load("//sycl/private:macros/sycl_test.bzl", _sycl_test = "sycl_test")
 load("//sycl/private:os_helpers.bzl", _if_linux = "if_linux", _if_windows = "if_windows")
+load("//sycl/private:rules/spv_library.bzl", _spv_library = "spv_library")
+
+# rules
+spv_library = _spv_library
 
 # macros
 icx_cc_binary = _icx_cc_binary

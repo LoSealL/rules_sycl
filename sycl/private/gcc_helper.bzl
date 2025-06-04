@@ -82,6 +82,7 @@ def _get_tool_paths(repository_ctx, overriden_tools):
             "ld",
             "llvm-cov",
             "llvm-profdata",
+            "llvm-spirv",
             "cpp",
             "gcc",
             "dwp",
