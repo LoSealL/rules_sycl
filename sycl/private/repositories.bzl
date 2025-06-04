@@ -85,6 +85,7 @@ def _detect_local_sycl_toolkit(repository_ctx):
     bin_ext = ".exe" if os_helper.is_windows(repository_ctx) else ""
     icx = "@rules_sycl//sycl/dummy:icx"
     ocloc = "@rules_sycl//sycl/dummy:ocloc"
+    llvm_spirv = "@rules_sycl//sycl/dummy:llvm-spirv"
     include_paths = [":empty"]
     lib_paths = [":empty"]
     icx_version = repository_ctx.attr.version
@@ -97,10 +98,13 @@ def _detect_local_sycl_toolkit(repository_ctx):
         ocloc_dir = sycl_path.get_child("ocloc", icx_version)
         icx_path = compiler_dir.get_child("bin/icx{}".format(bin_ext))
         ocloc_path = ocloc_dir.get_child("bin/ocloc{}".format(bin_ext))
+        llvm_spirv_path = compiler_dir.get_child("bin/compiler/llvm-spirv{}".format(bin_ext))
         if icx_path.exists:
             icx = str(icx_path)
         if ocloc_path.exists:
             ocloc = str(ocloc_path)
+        if llvm_spirv_path.exists:
+            llvm_spirv = str(llvm_spirv_path)
         include_paths = [
             compiler_dir.get_child("include"),
             compiler_dir.get_child("lib", "clang", llvm_version, "include"),
@@ -116,6 +120,7 @@ def _detect_local_sycl_toolkit(repository_ctx):
         lib_paths = [str(p) for p in lib_paths],
         icx = icx,
         ocloc = ocloc,
+        llvm_spirv = llvm_spirv,
     )
 
 def detect_sycl_toolkit(repository_ctx):

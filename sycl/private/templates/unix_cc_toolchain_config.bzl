@@ -230,6 +230,11 @@ def _impl(ctx):
     ]
     action_configs = []
 
+    spirv_codegen_action = action_config(
+        action_name = "sycl-spv-codegen",
+        tools = [tool(path = ctx.attr.tool_paths["llvm-spirv"])],
+    )
+
     llvm_cov_action = action_config(
         action_name = ACTION_NAMES.llvm_cov,
         tools = [
@@ -248,6 +253,7 @@ def _impl(ctx):
         ],
     )
 
+    action_configs.append(spirv_codegen_action)
     action_configs.append(llvm_cov_action)
     action_configs.append(objcopy_action)
 

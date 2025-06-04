@@ -11,3 +11,9 @@ cc_binary(
     srcs = ["dummy.cpp"],
     defines = ["TOOLNAME=ocloc"],
 )
+
+cc_binary(
+    name = "llvm-spirv",
+    srcs = ["dummy.cpp"],
+    defines = ["TOOLNAME=llvm-spirv"],
+)

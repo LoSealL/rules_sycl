@@ -50,6 +50,7 @@ cc_toolchain_config(
         "objcopy": "wrapper/bin/msvc_nop.bat",
         "objdump": "wrapper/bin/msvc_nop.bat",
         "strip": "wrapper/bin/msvc_nop.bat",
+        "spirv": "%{llvm_spirv_path_x64}",
     },
     archiver_flags = ["/MACHINE:X64"],
     default_link_flags = ["/MACHINE:X64"],
