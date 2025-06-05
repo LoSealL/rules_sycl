@@ -7,7 +7,7 @@ filegroup(
             "%{component_name}/compiler/%{version}/bin/**",
             "%{component_name}/ocloc/%{version}/bin/**",
         ],
-        allow_empty = False,
+        allow_empty = True,  # some components may not be installed
     ),
 )
 
