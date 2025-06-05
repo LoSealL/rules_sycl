@@ -58,9 +58,9 @@ def _generate_toolchain_build(repository_ctx, sycl):
         "@bazel_tools//tools/cpp:clang_installation_error.bat.tpl",
         # required by unix
         "//sycl/private:templates/BUILD.toolchain_icx",
+        "//sycl/private:templates/unix_cc_toolchain_config.bzl",
         "@bazel_tools//tools/cpp:generate_system_module_map.sh",
         "@bazel_tools//tools/cpp:armeabi_cc_toolchain_config.bzl",
-        "@bazel_tools//tools/cpp:unix_cc_toolchain_config.bzl",
         "@bazel_tools//tools/cpp:linux_cc_wrapper.sh.tpl",
         "@bazel_tools//tools/cpp:osx_cc_wrapper.sh.tpl",
     ])

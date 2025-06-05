@@ -18,7 +18,10 @@ def get_icx_version(repository_ctx, sycl_path):
     bin_ext = ".exe" if os_helper.is_windows(repository_ctx) else ""
     oneapi_path = repository_ctx.path(sycl_path).get_child("compiler", "latest")
     icx_path = oneapi_path.get_child("bin/icx{}".format(bin_ext))
-    ret = repository_ctx.execute([icx_path, "--version", "-nologo"])
+    cmd = [icx_path, "--version"]
+    if os_helper.is_windows(repository_ctx):
+        cmd.append("-nologo")
+    ret = repository_ctx.execute(cmd)
     if ret.return_code != 0:
         fail("Failed to get icx version (%s): %s" % (ret.return_code, ret.stderr))
     full_version = ret.stdout.split("\n")[0].split(" ")[-1].strip("()")
