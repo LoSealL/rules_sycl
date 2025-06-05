@@ -116,7 +116,7 @@ cc_import(
 cc_library(
     name = "sycl_runtime",
     visibility = ["//visibility:public"],
-    deps = if_linux([
+    deps = [":%{component_name}_headers"] + if_linux([
         "libirc",
         "liblibdecimal",
         "libsycl-devicelib-host",
