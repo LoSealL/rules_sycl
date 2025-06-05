@@ -3,3 +3,5 @@ common --announce_rc
 # Use --config=clang to build with clang instead of gcc and nvcc.
 build:clang --repo_env=CC=clang
 build:clang --@rules_sycl//sycl:compiler=clang
+
+build --platforms=@sycl//toolchain:sycl

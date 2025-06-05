@@ -1,0 +1,15 @@
+load("@rules_sycl//sycl:defs.bzl", "icx_cc_library", "icx_cc_test")
+
+package(default_visibility = ["//visibility:public"])
+
+icx_cc_library(
+    name = "kernel",
+    srcs = ["kernel.cc"],
+    hdrs = ["kernel.h"],
+)
+
+icx_cc_test(
+    name = "main",
+    srcs = ["main.cc"],
+    deps = [":kernel"],
+)

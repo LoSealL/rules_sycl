@@ -1,0 +1,16 @@
+cc_library(
+    name = "lib",
+    srcs = ["lib.cc"],
+)
+
+cc_binary(
+    name = "main",
+    srcs = ["main.cc"],
+    deps = [":lib"],
+)
+
+cc_test(
+    name = "main_test",
+    srcs = ["main.cc"],
+    deps = [":lib"],
+)

@@ -538,17 +538,6 @@ def _impl(ctx):
             ],
         )
 
-        default_link_flags_feature = feature(
-            name = "default_link_flags",
-            enabled = True,
-            flag_sets = [
-                flag_set(
-                    actions = all_link_actions,
-                    flag_groups = [flag_group(flags = ctx.attr.default_link_flags)],
-                ),
-            ],
-        )
-
         static_link_msvcrt_feature = feature(
             name = "static_link_msvcrt",
             flag_sets = [
@@ -952,16 +941,6 @@ def _impl(ctx):
             implies = ["copy_dynamic_libraries_to_binary"],
         )
 
-        linker_subsystem_flag_feature = feature(
-            name = "linker_subsystem_flag",
-            flag_sets = [
-                flag_set(
-                    actions = all_link_actions,
-                    flag_groups = [flag_group(flags = ["/SUBSYSTEM:CONSOLE"])],
-                ),
-            ],
-        )
-
         frame_pointer_feature = feature(
             name = "frame_pointer",
             flag_sets = [
@@ -1175,9 +1154,7 @@ def _impl(ctx):
             output_execpath_flags_feature,
             archiver_flags_feature,
             input_param_flags_feature,
-            linker_subsystem_flag_feature,
             user_link_flags_feature,
-            default_link_flags_feature,
             linker_param_file_feature,
             static_link_msvcrt_feature,
             dynamic_link_msvcrt_feature,
