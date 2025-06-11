@@ -35,7 +35,7 @@ host compiler is available. On Windows, this means that you will also need to se
 Add the following to your `MODULE.bazel` file and replace the placeholders with actual values.
 
 ```starlark
-bazel_dep(name = "rules_sycl", version = "0.2.1")
+bazel_dep(name = "rules_sycl", version = "0.0.0")
 
 # pick a specific version (this is optional an can be skipped)
 archive_override(
@@ -57,15 +57,16 @@ use_repo(sycl, "sycl")
 
 - `sycl_library`: Can be used to compile and create static library for SYCL kernel code. The resulting targets can be
   consumed by [C/C++ Rules](https://bazel.build/reference/be/c-cpp#rules).
-- `sycl_objects`: If you don't understand what _device link_ means, you must never use it. This rule produces incomplete
-  object files that can only be consumed by `sycl_library`. It is created for relocatable device code and device link
-  time optimization source files.
+- `sycl_binary`/`sycl_test`: Can be used to compile and create executable or shared library for SYCL kernel code.
+- `icx_cc_library`: Can be used to compile and create static library for DPC++ code (without SYCL runtime involved). The resulting targets can be consumed by [C/C++ Rules](https://bazel.build/reference/be/c-cpp#rules).
+- `icx_cc_binary`/`icx_cc_test`: Can be used to compile and create executable or shared library for DPC++ code (without SYCL runtime involved).
 
 ### Flags
 
 Some flags are defined in [sycl/BUILD.bazel](sycl/BUILD.bazel). To use them, for example:
 
 ```
+# not implemented yet!
 bazel build --@rules_sycl//sycl:archs=rpl-p
 ```
 
@@ -82,44 +83,11 @@ and then you can use it as following:
 bazel build --sycl_archs=rpl-p
 ```
 
-#### Available flags
-
-- `@rules_sycl//sycl:enable`
-
-  Enable or disable all rules_sycl related rules. When disabled, the detected sycl toolchains will also be disabled to avoid potential human error.
-  By default, rules_sycl rules are enabled. See `examples/if_sycl` for how to support both sycl-enabled and sycl-free builds.
-
-- `@rules_sycl//sycl:archs`
-
-  Select the sycl archs to support. See [sycl_archs specification DSL grammar](https://github.com/loseall/rules_sycl/blob/5633f0c0f7/sycl/private/rules/flags.bzl#L14-L44).
-
-- `@rules_sycl//sycl:copts`
-
-  Add the copts to all sycl compile actions.
-
-- `@rules_sycl//sycl:host_copts`
-
-  Add the copts to the host compiler.
 
 ## Examples
 
 Checkout the examples to see if it fits your needs.
 
-See [examples](./examples) for basic usage.
+See [tests](./tests) for basic usage.
 
 ## Known issue
-
-Sometimes the following error occurs:
-
-```
-cc1plus: fatal error: /tmp/tmpxft_00000002_00000019-2.cpp: No such file or directory
-```
-
-The problem is caused by nvcc use PID to determine temporary file name, and with `--spawn_strategy linux-sandbox` which is the default strategy on Linux, the PIDs nvcc sees are all very small numbers, say 2~4 due to sandboxing. `linux-sandbox` is not hermetic because [it mounts root into the sandbox](https://docs.bazel.build/versions/main/command-line-reference.html#flag--experimental_use_hermetic_linux_sandbox), thus, `/tmp` is shared between sandboxes, which is causing name conflict under high parallelism. Similar problem has been reported at [nvidia forums](https://forums.developer.nvidia.com/t/avoid-generating-temp-files-in-tmp-while-nvcc-compiling/197657/10).
-
-To avoid it:
-
-- Update to Bazel 7 where `--incompatible_sandbox_hermetic_tmp` is enabled by default.
-- Use `--spawn_strategy local` should eliminate the case because it will let nvcc sees the true PIDs.
-- Use `--experimental_use_hermetic_linux_sandbox` should eliminate the case because it will avoid the sharing of `/tmp`.
-- Add `-objtemp` option to the command should reduce the case from happening.

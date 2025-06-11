@@ -8,7 +8,7 @@ function compose-docs {
     rm -rf docs site
     mkdir -p docs
     cp ../README.md docs/index.md
-    bazel build :all_docs
+    bazelisk build :all_docs
     rsync -a --prune-empty-dirs --include '*/' mkdocs/stylesheets docs/
     rsync -a --prune-empty-dirs --include '*/' --include '*.md' --exclude '*' bazel-bin/ docs/
     find docs/ -name '*.md' -exec sed -i 's#<pre>#<div class="stardoc-pre"><pre>#g' {} \;

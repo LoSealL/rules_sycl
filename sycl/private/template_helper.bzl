@@ -51,6 +51,7 @@ def _generate_defs_bzl(repository_ctx, is_local_stk):
 
 def _generate_toolchain_build(repository_ctx, sycl):
     paths = os_helper.resolve_labels(repository_ctx, [
+        "//sycl/private:templates/BUILD.toolchain_platform",
         # required by msvc
         "//sycl/private:templates/BUILD.toolchain_icx_msvc",
         "//sycl/private:templates/windows_cc_toolchain_config.bzl",
@@ -68,7 +69,9 @@ def _generate_toolchain_build(repository_ctx, sycl):
     repo_name = repository_ctx.name.split("~")[-1]
     template_vars = dict({
         "%{platform_name}": repo_name,
+        "%{rules_are_enabled}": "rules_are_disabled" if sycl.path == None else "rules_are_enabled",
     })
+    toolchain_contents = []
     if os_helper.is_windows(repository_ctx):
         msvc_vars_x64 = msvc_helper.get_msvc_vars(repository_ctx, paths, "x64")
         msvc_vars_x64["%{msvc_cl_path_x64}"] = sycl.icx
@@ -89,19 +92,31 @@ def _generate_toolchain_build(repository_ctx, sycl):
             paths["//sycl/private:templates/windows_cc_toolchain_config.bzl"],
             {},
         )
-        repository_ctx.template(
-            "toolchain/BUILD",
-            paths["//sycl/private:templates/BUILD.toolchain_icx_msvc"],
-            template_vars,
+        toolchain_contents.append(
+            repository_ctx.read(paths["//sycl/private:templates/BUILD.toolchain_icx_msvc"]),
         )
     elif os_helper.is_linux(repository_ctx):
-        template_vars["gcc"] = sycl.icx
-        template_vars["llvm-cov"] = "{}/compiler/{}/bin/compiler/llvm-cov".format(sycl.path, sycl.version)
-        template_vars["llvm-profdata"] = "{}/compiler/{}/bin/compiler/llvm-profdata".format(sycl.path, sycl.version)
-        template_vars["llvm-spirv"] = sycl.llvm_spirv
-        template_vars["ar"] = "{}/compiler/{}/bin/compiler/llvm-ar".format(sycl.path, sycl.version)
-        template_vars["builtin_include_directories"] = sycl.include_paths
-        gcc_helper.configure_unix_toolchain(repository_ctx, paths, "x86_64", template_vars)
+        overriden_tools = {}
+        overriden_tools["gcc"] = sycl.icx
+        overriden_tools["llvm-cov"] = "{}/compiler/{}/bin/compiler/llvm-cov".format(sycl.path, sycl.version)
+        overriden_tools["llvm-profdata"] = "{}/compiler/{}/bin/compiler/llvm-profdata".format(sycl.path, sycl.version)
+        overriden_tools["llvm-spirv"] = sycl.llvm_spirv
+        overriden_tools["ar"] = "{}/compiler/{}/bin/compiler/llvm-ar".format(sycl.path, sycl.version)
+        overriden_tools["builtin_include_directories"] = sycl.include_paths
+        unix_vars_x64 = gcc_helper.get_unix_vars(repository_ctx, paths, "x86_64", overriden_tools)
+        template_vars.update(unix_vars_x64)
+
+        toolchain_contents.append(
+            repository_ctx.read(paths["//sycl/private:templates/BUILD.toolchain_icx"]),
+        )
+
+    toolchain_contents.append(
+        repository_ctx.read(paths["//sycl/private:templates/BUILD.toolchain_platform"]),
+    )
+    toolchain_content = "\n".join(toolchain_contents)
+    toolchain_tpl = repository_ctx.path("toolchain/BUILD.tpl")
+    repository_ctx.file(toolchain_tpl, content = toolchain_content)
+    repository_ctx.template("toolchain/BUILD", toolchain_tpl, template_vars)
 
 template_helper = struct(
     generate_build = _generate_build,

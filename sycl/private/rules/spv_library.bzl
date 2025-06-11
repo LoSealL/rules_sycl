@@ -105,6 +105,7 @@ def _impl(ctx):
         )
 
         args = ctx.actions.args()
+
         # TODO: extract command line from a repo rule using a test.cpp?
         args.add_all([
             bc_file,

@@ -1,4 +1,3 @@
-load("@bazel_skylib//lib:paths.bzl", "paths")
 load("@bazel_tools//tools/cpp:lib_cc_configure.bzl", "auto_configure_fail")
 
 def if_linux(if_true, if_false = []):
@@ -28,16 +27,21 @@ def cc_import_versioned_sos(name, shared_library):
     # NOTE: only empty when the componnent is not installed on the system, say, cublas is not installed with apt-get
     so_paths = native.glob([shared_library + "*"], allow_empty = True)
 
+    unique_so_paths = {}
     for p in so_paths:
+        # Use the basename to avoid duplicates.
+        unique_so_paths[p.rpartition("/")[-1]] = p
+
+    for p in unique_so_paths:
         native.cc_import(
-            name = paths.basename(p),
-            shared_library = p,
+            name = p,
+            shared_library = unique_so_paths[p],
             target_compatible_with = ["@platforms//os:linux"],
         )
 
     native.cc_library(
         name = name,
-        deps = [":%s" % paths.basename(p) for p in so_paths],
+        deps = [":%s" % p for p in unique_so_paths],
     )
 
 def _resolve_labels(repository_ctx, labels):

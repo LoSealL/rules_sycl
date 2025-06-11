@@ -20,7 +20,7 @@ jobs:
           # NOTE: read from .bazelversion so that we don't randomly break our
           # ci due to latest bazel version change
           - .bazelversion
-          - 7.5.0
+          - 7.6.0
           - 6.5.0
     env:
       USE_BAZEL_VERSION: ${{ matrix.bazel-version }}
@@ -40,12 +40,6 @@ jobs:
         with:
           path: ~/.cache/bazel
           key: bazel-${{ matrix.os }}-${{ matrix.bazel-version }}
-
-      - uses: Jimver/cuda-toolkit@v0.2.22
-        with:
-          cuda: 11.7.0
-          sub-packages: '["cudart"]'
-          method: network
 
       - run: bazelisk test -- //tests/...
 

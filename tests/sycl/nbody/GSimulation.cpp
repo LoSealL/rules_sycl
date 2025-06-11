@@ -107,7 +107,7 @@ void GSimulation::Start() {
   auto r = range<1>(n);
   // Create local range
   auto lr = range<1>(128);
-  // Create ndrange 
+  // Create ndrange
   auto ndrange = nd_range<1>(r, lr);
   // Create a queue to the selected device and enabled asynchronous exception
   // handling for that queue
@@ -162,9 +162,9 @@ void GSimulation::Start() {
     q.submit([&](handler& h) {
        auto p = pbuf.get_access(h);
        h.parallel_for(ndrange, reduction(energy, 0.f, std::plus<RealType>()), [=](nd_item<1> it, auto& energy) {
-	       
+
          auto i = it.get_global_id();
-         
+
          p[i].vel[0] += p[i].acc[0] * dt;  // 2flops
          p[i].vel[1] += p[i].acc[1] * dt;  // 2flops
          p[i].vel[2] += p[i].acc[2] * dt;  // 2flops
