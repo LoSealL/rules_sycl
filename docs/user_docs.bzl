@@ -1,20 +1,31 @@
-load("@rules_cuda//cuda:defs.bzl", _cuda_binary = "cuda_binary", _cuda_library = "cuda_library", _cuda_objects = "cuda_objects", _cuda_test = "cuda_test")
 load(
-    "@rules_cuda//cuda:repositories.bzl",
-    _register_detected_cuda_toolchains = "register_detected_cuda_toolchains",
-    _rules_cuda_dependencies = "rules_cuda_dependencies",
-    _rules_cuda_toolchains = "rules_cuda_toolchains",
+    "@rules_sycl//sycl:defs.bzl",
+    _icx_cc_binary = "icx_cc_binary",
+    _icx_cc_library = "icx_cc_library",
+    _icx_cc_test = "icx_cc_test",
+    _requires_sycl = "requires_sycl",
+    _spv_library = "spv_library",
+    _sycl_binary = "sycl_binary",
+    _sycl_library = "sycl_library",
+    _sycl_test = "sycl_test",
 )
-load("@rules_cuda//cuda/private:rules/flags.bzl", _cuda_archs_flag = "cuda_archs_flag")
+load(
+    "@rules_sycl//sycl:repositories.bzl",
+    _rules_sycl_dependencies = "rules_sycl_dependencies",
+    _rules_sycl_toolchains = "rules_sycl_toolchains",
+    _sycl_toolkit = "sycl_toolkit",
+)
 
-cuda_library = _cuda_library
-cuda_objects = _cuda_objects
+sycl_library = _sycl_library
+sycl_binary = _sycl_binary
+sycl_test = _sycl_test
+icx_cc_binary = _icx_cc_binary
+icx_cc_library = _icx_cc_library
+icx_cc_test = _icx_cc_test
 
-cuda_binary = _cuda_binary
-cuda_test = _cuda_test
+spv_library = _spv_library
+requires_sycl = _requires_sycl
 
-cuda_archs = _cuda_archs_flag
-
-register_detected_cuda_toolchains = _register_detected_cuda_toolchains
-rules_cuda_dependencies = _rules_cuda_dependencies
-rules_cuda_toolchains = _rules_cuda_toolchains
+sycl_toolkit = _sycl_toolkit
+rules_sycl_dependencies = _rules_sycl_dependencies
+rules_sycl_toolchains = _rules_sycl_toolchains

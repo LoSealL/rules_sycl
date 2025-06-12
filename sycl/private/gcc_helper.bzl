@@ -321,7 +321,7 @@ def find_cc(repository_ctx, overriden_tools):
             return result.stdout.strip()
     return cc
 
-def configure_unix_toolchain(repository_ctx, paths, cpu_value, overriden_tools):
+def get_unix_vars(repository_ctx, paths, cpu_value, overriden_tools):
     """Configure C++ toolchain on Unix platforms."""
     repository_ctx.symlink(
         paths["//sycl/private:templates/unix_cc_toolchain_config.bzl"],
@@ -554,165 +554,160 @@ def configure_unix_toolchain(repository_ctx, paths, cpu_value, overriden_tools):
             extra_flags_per_feature["use_module_maps"] = ["-Xclang", "-fno-cxx-modules"]
 
     _write_builtin_include_directory_paths(repository_ctx, cc, builtin_include_directories)
-    repository_ctx.template(
-        "toolchain/BUILD",
-        paths["//sycl/private:templates/BUILD.toolchain_icx"],
-        {
-            "%{cc_toolchain_identifier}": cc_toolchain_identifier,
-            "%{name}": cpu_value,
-            "%{modulemap}": ("\":module.modulemap\"" if generate_modulemap else "None"),
-            "%{cc_compiler_deps}": get_starlark_list([
-                ":builtin_include_directory_paths",
-                ":cc_wrapper",
-            ]),
-            "%{compiler}": escape_string(get_env_var(
+    return {
+        "%{cc_toolchain_identifier}": cc_toolchain_identifier,
+        "%{name}": cpu_value,
+        "%{modulemap}": ("\":module.modulemap\"" if generate_modulemap else "None"),
+        "%{cc_compiler_deps}": get_starlark_list([
+            ":builtin_include_directory_paths",
+            ":cc_wrapper",
+        ]),
+        "%{compiler}": escape_string(get_env_var(
+            repository_ctx,
+            "BAZEL_COMPILER",
+            _get_compiler_name(repository_ctx, cc),
+            False,
+        )),
+        "%{abi_version}": escape_string(get_env_var(
+            repository_ctx,
+            "ABI_VERSION",
+            "local",
+            False,
+        )),
+        "%{abi_libc_version}": escape_string(get_env_var(
+            repository_ctx,
+            "ABI_LIBC_VERSION",
+            "local",
+            False,
+        )),
+        "%{host_system_name}": escape_string(get_env_var(
+            repository_ctx,
+            "BAZEL_HOST_SYSTEM",
+            "local",
+            False,
+        )),
+        "%{target_libc}": "macosx" if darwin else escape_string(get_env_var(
+            repository_ctx,
+            "BAZEL_TARGET_LIBC",
+            "local",
+            False,
+        )),
+        "%{target_cpu}": escape_string(get_env_var(
+            repository_ctx,
+            "BAZEL_TARGET_CPU",
+            cpu_value,
+            False,
+        )),
+        "%{target_system_name}": escape_string(get_env_var(
+            repository_ctx,
+            "BAZEL_TARGET_SYSTEM",
+            "local",
+            False,
+        )),
+        "%{tool_paths}": ",\n        ".join(
+            ['"%s": "%s"' % (k, v) for k, v in tool_paths.items()],
+        ),
+        "%{cxx_builtin_include_directories}": get_starlark_list(builtin_include_directories),
+        "%{compile_flags}": get_starlark_list(
+            [
+                "-fstack-protector",
+                # All warnings are enabled.
+                "-Wall",
+                # Enable a few more warnings that aren't part of -Wall.
+            ] + ((
+                _add_compiler_option_if_supported(repository_ctx, cc, "-Wthread-safety") +
+                _add_compiler_option_if_supported(repository_ctx, cc, "-Wself-assign")
+            )) + (
+                # Disable problematic warnings.
+                _add_compiler_option_if_supported(repository_ctx, cc, "-Wunused-but-set-parameter") +
+                # has false positives
+                _add_compiler_option_if_supported(repository_ctx, cc, "-Wno-free-nonheap-object") +
+                # Enable coloring even if there's no attached terminal. Bazel removes the
+                # escape sequences if --nocolor is specified.
+                _add_compiler_option_if_supported(repository_ctx, cc, "-fcolor-diagnostics")
+            ) + [
+                # Keep stack frames for debugging, even in opt mode.
+                "-fno-omit-frame-pointer",
+            ],
+        ),
+        "%{cxx_flags}": get_starlark_list(cxx_opts + _escaped_cplus_include_paths(repository_ctx)),
+        "%{conly_flags}": get_starlark_list(conly_opts),
+        "%{link_flags}": get_starlark_list(force_linker_flags + (
+            ["-Wl,-no-as-needed"] if is_as_needed_supported else []
+        ) + _add_linker_option_if_supported(
+            repository_ctx,
+            cc,
+            force_linker_flags,
+            "-Wl,-z,relro,-z,now",
+            "-z",
+        ) + (
+            [
+                "-headerpad_max_install_names",
+            ] if darwin else [
+                # Gold linker only? Can we enable this by default?
+                # "-Wl,--warn-execstack",
+                # "-Wl,--detect-odr-violations"
+            ] + _add_compiler_option_if_supported(
+                # Have gcc return the exit code from ld.
                 repository_ctx,
-                "BAZEL_COMPILER",
-                _get_compiler_name(repository_ctx, cc),
-                False,
-            )),
-            "%{abi_version}": escape_string(get_env_var(
-                repository_ctx,
-                "ABI_VERSION",
-                "local",
-                False,
-            )),
-            "%{abi_libc_version}": escape_string(get_env_var(
-                repository_ctx,
-                "ABI_LIBC_VERSION",
-                "local",
-                False,
-            )),
-            "%{host_system_name}": escape_string(get_env_var(
-                repository_ctx,
-                "BAZEL_HOST_SYSTEM",
-                "local",
-                False,
-            )),
-            "%{target_libc}": "macosx" if darwin else escape_string(get_env_var(
-                repository_ctx,
-                "BAZEL_TARGET_LIBC",
-                "local",
-                False,
-            )),
-            "%{target_cpu}": escape_string(get_env_var(
-                repository_ctx,
-                "BAZEL_TARGET_CPU",
-                cpu_value,
-                False,
-            )),
-            "%{target_system_name}": escape_string(get_env_var(
-                repository_ctx,
-                "BAZEL_TARGET_SYSTEM",
-                "local",
-                False,
-            )),
-            "%{tool_paths}": ",\n        ".join(
-                ['"%s": "%s"' % (k, v) for k, v in tool_paths.items()],
-            ),
-            "%{cxx_builtin_include_directories}": get_starlark_list(builtin_include_directories),
-            "%{compile_flags}": get_starlark_list(
-                [
-                    "-fstack-protector",
-                    # All warnings are enabled.
-                    "-Wall",
-                    # Enable a few more warnings that aren't part of -Wall.
-                ] + ((
-                    _add_compiler_option_if_supported(repository_ctx, cc, "-Wthread-safety") +
-                    _add_compiler_option_if_supported(repository_ctx, cc, "-Wself-assign")
-                )) + (
-                    # Disable problematic warnings.
-                    _add_compiler_option_if_supported(repository_ctx, cc, "-Wunused-but-set-parameter") +
-                    # has false positives
-                    _add_compiler_option_if_supported(repository_ctx, cc, "-Wno-free-nonheap-object") +
-                    # Enable coloring even if there's no attached terminal. Bazel removes the
-                    # escape sequences if --nocolor is specified.
-                    _add_compiler_option_if_supported(repository_ctx, cc, "-fcolor-diagnostics")
-                ) + [
-                    # Keep stack frames for debugging, even in opt mode.
-                    "-fno-omit-frame-pointer",
-                ],
-            ),
-            "%{cxx_flags}": get_starlark_list(cxx_opts + _escaped_cplus_include_paths(repository_ctx)),
-            "%{conly_flags}": get_starlark_list(conly_opts),
-            "%{link_flags}": get_starlark_list(force_linker_flags + (
-                ["-Wl,-no-as-needed"] if is_as_needed_supported else []
-            ) + _add_linker_option_if_supported(
+                cc,
+                "-pass-exit-codes",
+            )
+        ) + link_opts),
+        "%{link_libs}": get_starlark_list(link_libs),
+        "%{opt_compile_flags}": get_starlark_list(
+            [
+                # No debug symbols.
+                # Maybe we should enable https://gcc.gnu.org/wiki/DebugFission for opt or
+                # even generally? However, that can't happen here, as it requires special
+                # handling in Bazel.
+                "-g0",
+
+                # Conservative choice for -O
+                # -O3 can increase binary size and even slow down the resulting binaries.
+                # Profile first and / or use FDO if you need better performance than this.
+                "-O2",
+
+                # Security hardening on by default.
+                # Conservative choice; -D_FORTIFY_SOURCE=2 may be unsafe in some cases.
+                "-D_FORTIFY_SOURCE=1",
+
+                # Disable assertions
+                "-DNDEBUG",
+
+                # Removal of unused code and data at link time (can this increase binary
+                # size in some cases?).
+                "-ffunction-sections",
+                "-fdata-sections",
+            ],
+        ),
+        "%{opt_link_flags}": get_starlark_list(
+            ["-Wl,-dead_strip"] if darwin else _add_linker_option_if_supported(
                 repository_ctx,
                 cc,
                 force_linker_flags,
-                "-Wl,-z,relro,-z,now",
-                "-z",
-            ) + (
-                [
-                    "-headerpad_max_install_names",
-                ] if darwin else [
-                    # Gold linker only? Can we enable this by default?
-                    # "-Wl,--warn-execstack",
-                    # "-Wl,--detect-odr-violations"
-                ] + _add_compiler_option_if_supported(
-                    # Have gcc return the exit code from ld.
-                    repository_ctx,
-                    cc,
-                    "-pass-exit-codes",
-                )
-            ) + link_opts),
-            "%{link_libs}": get_starlark_list(link_libs),
-            "%{opt_compile_flags}": get_starlark_list(
-                [
-                    # No debug symbols.
-                    # Maybe we should enable https://gcc.gnu.org/wiki/DebugFission for opt or
-                    # even generally? However, that can't happen here, as it requires special
-                    # handling in Bazel.
-                    "-g0",
-
-                    # Conservative choice for -O
-                    # -O3 can increase binary size and even slow down the resulting binaries.
-                    # Profile first and / or use FDO if you need better performance than this.
-                    "-O2",
-
-                    # Security hardening on by default.
-                    # Conservative choice; -D_FORTIFY_SOURCE=2 may be unsafe in some cases.
-                    "-D_FORTIFY_SOURCE=1",
-
-                    # Disable assertions
-                    "-DNDEBUG",
-
-                    # Removal of unused code and data at link time (can this increase binary
-                    # size in some cases?).
-                    "-ffunction-sections",
-                    "-fdata-sections",
-                ],
+                "-Wl,--gc-sections",
+                "-gc-sections",
             ),
-            "%{opt_link_flags}": get_starlark_list(
-                ["-Wl,-dead_strip"] if darwin else _add_linker_option_if_supported(
-                    repository_ctx,
-                    cc,
-                    force_linker_flags,
-                    "-Wl,--gc-sections",
-                    "-gc-sections",
-                ),
-            ),
-            "%{unfiltered_compile_flags}": get_starlark_list(
-                _get_no_canonical_prefixes_opt(repository_ctx, cc) + [
-                    # Make C++ compilation deterministic. Use linkstamping instead of these
-                    # compiler symbols.
-                    "-Wno-builtin-macro-redefined",
-                    "-D__DATE__=\\\"redacted\\\"",
-                    "-D__TIMESTAMP__=\\\"redacted\\\"",
-                    "-D__TIME__=\\\"redacted\\\"",
-                ],
-            ),
-            "%{dbg_compile_flags}": get_starlark_list(["-g"]),
-            "%{coverage_compile_flags}": coverage_compile_flags,
-            "%{coverage_link_flags}": coverage_link_flags,
-            "%{supports_start_end_lib}": "True" if gold_or_lld_linker_path else "False",
-            "%{extra_flags_per_feature}": repr(extra_flags_per_feature),
-            "%{platform_name}": overriden_tools["%{platform_name}"],
-        },
-    )
+        ),
+        "%{unfiltered_compile_flags}": get_starlark_list(
+            _get_no_canonical_prefixes_opt(repository_ctx, cc) + [
+                # Make C++ compilation deterministic. Use linkstamping instead of these
+                # compiler symbols.
+                "-Wno-builtin-macro-redefined",
+                "-D__DATE__=\\\"redacted\\\"",
+                "-D__TIMESTAMP__=\\\"redacted\\\"",
+                "-D__TIME__=\\\"redacted\\\"",
+            ],
+        ),
+        "%{dbg_compile_flags}": get_starlark_list(["-g"]),
+        "%{coverage_compile_flags}": coverage_compile_flags,
+        "%{coverage_link_flags}": coverage_link_flags,
+        "%{supports_start_end_lib}": "True" if gold_or_lld_linker_path else "False",
+        "%{extra_flags_per_feature}": repr(extra_flags_per_feature),
+    }
 
 toolchain_helper = struct(
     find_cc = find_cc,
-    configure_unix_toolchain = configure_unix_toolchain,
+    get_unix_vars = get_unix_vars,
 )

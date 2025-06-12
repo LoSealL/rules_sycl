@@ -2,7 +2,7 @@ filegroup(
     name = "%{component_name}_header_files",
     srcs = glob(
         ["%{component_name}/compiler/%{version}/include/**"],
-        allow_empty = False,
+        allow_empty = True,
     ),
     visibility = ["//visibility:private"],
 )

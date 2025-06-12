@@ -4,6 +4,7 @@ Author: Wenyi Tang
 E-mail: wenyitang@outlook.com
 
 """
+
 load("@bazel_tools//tools/build_defs/cc:action_names.bzl", CC_ACTION_NAMES = "ACTION_NAMES")
 load("//sycl/private:action_names.bzl", "ACTION_NAMES")
 load("//sycl/private:rules/common.bzl", "ALLOW_SYCL_SRCS")

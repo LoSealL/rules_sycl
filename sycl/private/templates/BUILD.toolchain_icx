@@ -132,18 +132,7 @@ cc_toolchain_suite(
     },
 )
 
-platform(
-    name = "%{platform_name}",
-    constraint_values = [
-        "@platforms//os:linux",
-        "@platforms//cpu:x86_64",
-        ":rules_are_enabled",
-    ],
-)
-
-constraint_setting(name = "rules_are_enabled_setting")
-
-constraint_value(
-    name = "rules_are_enabled",
-    constraint_setting = ":rules_are_enabled_setting",
-)
+platforms = [
+    "@platforms//os:linux",
+    "@platforms//cpu:x86_64",
+]

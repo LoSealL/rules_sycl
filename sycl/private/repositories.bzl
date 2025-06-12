@@ -89,6 +89,7 @@ def _detect_local_sycl_toolkit(repository_ctx):
     include_paths = [":empty"]
     lib_paths = [":empty"]
     icx_version = repository_ctx.attr.version
+    llvm_version = "llvm-unknown"
     if sycl_path != None:
         sycl_path = repository_ctx.path(sycl_path)
         if not icx_version:
@@ -113,9 +114,9 @@ def _detect_local_sycl_toolkit(repository_ctx):
         lib_paths = [compiler_dir.get_child("lib")]
 
     return struct(
-        path = str(sycl_path),
-        version = icx_version,
-        llvm_version = get_llvm_version(icx_version, sycl_path),
+        path = str(sycl_path) if sycl_path else None,
+        version = icx_version or "latest",
+        llvm_version = llvm_version,
         include_paths = [str(p) for p in include_paths],
         lib_paths = [str(p) for p in lib_paths],
         icx = icx,
@@ -175,7 +176,7 @@ sycl_toolkit = repository_rule(
     implementation = _sycl_toolkit_impl,
     attrs = {
         "toolkit_path": attr.string(doc = "Path to the oneAPI SDK, if empty the environment variable CMPLR_ROOT will be used to deduce this path."),
-        "version": attr.string(doc = "sycl toolkit version. Required for deliverable toolkit only.", default = "latest"),
+        "version": attr.string(doc = "sycl toolkit version. Required for deliverable toolkit only."),
     },
     configure = True,
     local = True,
@@ -215,7 +216,7 @@ def rules_sycl_dependencies():
 def rules_sycl_toolchains(
         name = "sycl",
         toolkit_path = None,
-        version = "latest",
+        version = None,
         register_toolchains = False):
     """Populate the @sycl repo.
 

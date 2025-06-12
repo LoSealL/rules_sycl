@@ -1,13 +1,13 @@
-workspace(name = "rules_cuda_docs")
+workspace(name = "rules_sycl_docs")
 
 local_repository(
-    name = "rules_cuda",
+    name = "rules_sycl",
     path = "..",
 )
 
-load("@rules_cuda//cuda:repositories.bzl", "rules_cuda_dependencies")
+load("@rules_sycl//sycl:repositories.bzl", "rules_sycl_dependencies")
 
-rules_cuda_dependencies()
+rules_sycl_dependencies()
 
 load("@bazel_tools//tools/build_defs/repo:http.bzl", "http_archive")
 

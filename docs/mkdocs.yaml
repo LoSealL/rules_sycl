@@ -1,5 +1,5 @@
-site_name: "rules_cuda: Starlark implementation of bazel rules for CUDA"
-repo_url: https://github.com/bazel-contrib/rules_cuda
+site_name: "rules_sycl: Starlark implementation of bazel rules for SYCL"
+repo_url: https://github.com/bazel-contrib/rules_sycl
 docs_dir: docs
 
 theme:

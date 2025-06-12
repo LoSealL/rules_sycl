@@ -1,8 +1,9 @@
-load("@rules_sycl//sycl:defs.bzl", "sycl_test", "spv_library")
+load("@rules_sycl//sycl:defs.bzl", "requires_sycl", "spv_library")
 
 package(default_visibility = ["//visibility:public"])
 
 spv_library(
     name = "main",
     srcs = ["main.cc"],
+    target_compatible_with = requires_sycl(),
 )
