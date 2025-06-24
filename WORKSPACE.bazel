@@ -9,3 +9,7 @@ rules_sycl_toolchains(register_toolchains = True)
 load("@bazel_skylib//:workspace.bzl", "bazel_skylib_workspace")
 
 bazel_skylib_workspace()
+
+load("@rules_sycl//ocl:repositories.bzl", "rules_ocl_dependencies")
+
+rules_ocl_dependencies()

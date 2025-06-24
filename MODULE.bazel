@@ -17,3 +17,11 @@ use_repo(sycl, "sycl")
 register_toolchains(
     "@sycl//toolchain:icx-local-toolchain",
 )
+
+ocl = use_extension("@rules_sycl//ocl:extensions.bzl", "opencl_extension", dev_dependency = True)
+use_repo(
+    ocl,
+    "opencl_clhpp",
+    "opencl_headers",
+    "opencl_icd_loader",
+)
