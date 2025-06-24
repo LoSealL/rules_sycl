@@ -15,7 +15,7 @@ jobs:
       matrix:
         os:
           - ubuntu-22.04
-          - windows-2019
+          - windows-2022
         bazel-version:
           # NOTE: read from .bazelversion so that we don't randomly break our
           # ci due to latest bazel version change
@@ -41,6 +41,6 @@ jobs:
           path: ~/.cache/bazel
           key: bazel-${{ matrix.os }}-${{ matrix.bazel-version }}
 
-      - run: bazelisk test -- //tests/...
+      - run: bazelisk build -- //tests/...
 
       - run: bazelisk shutdown

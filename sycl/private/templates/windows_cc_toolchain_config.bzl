@@ -1084,7 +1084,7 @@ def _impl(ctx):
                     actions = all_link_actions,
                     flag_groups = [
                         flag_group(
-                            flags = ["/DEF:%{def_file_path}", "/ignore:4070"],
+                            flags = ["/DEF:%{def_file_path}"],
                             expand_if_available = "def_file_path",
                         ),
                     ],
